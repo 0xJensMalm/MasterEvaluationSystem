@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Application</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="login-container">
+        <h2>Skriv inn kode</h2>
+        <input type="text" id="passcode" placeholder="Passcode">
+        <button onclick="validatePasscode()">Enter</button>
+    </div>
+
+    <div id="survey-container" style="display:none;">
+        <div id="layman-survey" style="display:none;">
+            <div class="document">
+                <h2 id="document-title"></h2>
+                <p id="document-content"></p>
+            </div>
+            <div id="likert-scale">
+                <label>
+                    <input type="radio" name="score" value="1"> 1
+                </label>
+                <label>
+                    <input type="radio" name="score" value="2"> 2
+                </label>
+                <label>
+                    <input type="radio" name="score" value="3"> 3
+                </label>
+                <label>
+                    <input type="radio" name="score" value="4"> 4
+                </label>
+                <label>
+                    <input type="radio" name="score" value="5"> 5
+                </label>
+            </div>
+            <button onclick="submitLaymanScore()">Submit Score</button>
+        </div>
+
+        <div id="expert-survey" style="display:none;">
+            <div class="document-pair">
+                <div class="document">
+                    <h2>Original Document</h2>
+                    <p id="original-document-content"></p>
+                </div>
+                <div class="document">
+                    <h2>Translated Document</h2>
+                    <p id="translated-document-content"></p>
+                </div>
+            </div>
+            <div id="expert-likert-scale">
+                <label>
+                    <input type="radio" name="expert-score" value="1"> 1
+                </label>
+                <label>
+                    <input type="radio" name="expert-score" value="2"> 2
+                </label>
+                <label>
+                    <input type="radio" name="expert-score" value="3"> 3
+                </label>
+                <label>
+                    <input type="radio" name="expert-score" value="4"> 4
+                </label>
+                <label>
+                    <input type="radio" name="expert-score" value="5"> 5
+                </label>
+            </div>
+            <button onclick="submitExpertScore()">Submit Score</button>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/layman.js" id="layman-script" style="display:none;"></script>
+    <script src="js/expert.js" id="expert-script" style="display:none;"></script>
+</body>
+
+</html>
