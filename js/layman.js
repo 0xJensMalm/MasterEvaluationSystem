@@ -1,56 +1,80 @@
-let currentDocumentIndex = 0;
-let documents = [];
-let startTime;
+(async function () {
+  let currentDocumentIndex = 0;
+  let documents = [];
+  let startTime;
+  let shuffledDocuments = [];
+  const config = config.laymanConfig(); // Ensure config is accessed correctly
 
-// Mock storage for collected data
-let collectedData = [];
+  // Mock storage for collected data
+  let collectedData = [];
 
-async function fetchLaymanDocuments() {
-  const response = await fetch("data/documents.json");
-  documents = await response.json();
-  startSurvey();
-}
-
-function startSurvey() {
-  if (currentDocumentIndex < documents.length) {
-    const doc = documents[currentDocumentIndex];
-    document.getElementById("document-title").innerText = `Document ${
-      currentDocumentIndex + 1
-    }`;
-    document.getElementById("document-content").innerText = doc.content;
-    startTime = Date.now();
-  } else {
-    alert("Survey completed. Thank you!");
-    console.log("Collected Data:", collectedData);
-  }
-}
-
-function submitLaymanScore() {
-  const selectedScore = document.querySelector('input[name="score"]:checked');
-  if (!selectedScore) {
-    alert("Please select a score");
-    return;
+  async function fetchLaymanDocuments() {
+    try {
+      const response = await fetch("data/documents.json");
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      documents = await response.json();
+      if (config.randomShuffle) {
+        shuffledDocuments = shuffleArray(documents);
+      } else {
+        shuffledDocuments = documents;
+      }
+      startSurvey();
+    } catch (error) {
+      console.error("Failed to fetch documents:", error);
+    }
   }
 
-  const score = selectedScore.value;
-  const documentID = documents[currentDocumentIndex].id;
-  const timeSpent = Date.now() - startTime;
+  function startSurvey() {
+    if (currentDocumentIndex < shuffledDocuments.length) {
+      const doc = shuffledDocuments[currentDocumentIndex];
+      document.getElementById("document-title").innerText = `Document ${
+        currentDocumentIndex + 1
+      }`;
+      document.getElementById("document-content").innerText = doc.content;
+      startTime = Date.now();
+    } else {
+      alert("Survey completed. Thank you!");
+      console.log("Collected Data:", collectedData);
+    }
+  }
 
-  // Store data
-  const dataEntry = {
-    userID,
-    documentID,
-    score,
-    timeSpent,
-  };
-  collectedData.push(dataEntry);
+  function submitLaymanScore() {
+    const selectedScore = document.querySelector('input[name="score"]:checked');
+    if (!selectedScore) {
+      alert("Please select a score");
+      return;
+    }
 
-  // Log data to console
-  console.log(dataEntry);
+    const score = selectedScore.value;
+    const documentID = shuffledDocuments[currentDocumentIndex].id;
+    const timeSpent = Date.now() - startTime;
 
-  // Move to next document
-  currentDocumentIndex++;
-  startSurvey();
-}
+    // Store data
+    const dataEntry = {
+      userID,
+      documentID,
+      score,
+      timeSpent,
+    };
+    collectedData.push(dataEntry);
 
-fetchLaymanDocuments();
+    // Log data to console
+    console.log(dataEntry);
+
+    // Move to next document
+    currentDocumentIndex++;
+    startSurvey();
+  }
+
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  fetchLaymanDocuments();
+})();

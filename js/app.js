@@ -6,14 +6,14 @@ function validatePasscode() {
   // Validate passcode and determine user type (replace with actual logic)
   if (passcode === "doctor") {
     userID = "expert";
-    document.getElementById("expert-script").src = "js/expert.js";
-    document.getElementById("expert-script").style.display = "block";
-    document.getElementById("expert-survey").style.display = "block";
+    loadScript("js/expert.js", function () {
+      document.getElementById("expert-survey").style.display = "block";
+    });
   } else if (passcode === "layman") {
     userID = "layman";
-    document.getElementById("layman-script").src = "js/layman.js";
-    document.getElementById("layman-script").style.display = "block";
-    document.getElementById("layman-survey").style.display = "block";
+    loadScript("js/layman.js", function () {
+      document.getElementById("layman-survey").style.display = "block";
+    });
   } else {
     alert("Invalid passcode");
     return;
@@ -21,4 +21,12 @@ function validatePasscode() {
 
   document.getElementById("login-container").style.display = "none";
   document.getElementById("survey-container").style.display = "block";
+}
+
+function loadScript(url, callback) {
+  const script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = url;
+  script.onload = callback;
+  document.body.appendChild(script);
 }

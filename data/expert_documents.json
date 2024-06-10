@@ -1,17 +1,15 @@
 {
-  "originalEpikriser": [
-      {"id": 1, "content": "Original content 1..."},
-      {"id": 2, "content": "Original content 2..."},
-      {"id": 3, "content": "Original content 3..."}
-  ],
-  "epikriserMethod1": [
-      {"id": "1_1", "content": "Translated content 1 by method 1..."},
-      {"id": "2_1", "content": "Translated content 2 by method 1..."},
-      {"id": "3_1", "content": "Translated content 3 by method 1..."}
-  ],
-  "epikriserMethod2": [
-      {"id": "1_2", "content": "Translated content 1 by method 2..."},
-      {"id": "2_2", "content": "Translated content 2 by method 2..."},
-      {"id": "3_2", "content": "Translated content 3 by method 2..."}
-  ]
-}
+    "originalEpikriser": [
+      {"id": 1, "content": "Original document content 1"},
+      {"id": 2, "content": "Original document content 2"}
+    ],
+    "epikriserMethod1": [
+      {"id": 1, "content": "Translated document content 1 using Method 1"},
+      {"id": 2, "content": "Translated document content 2 using Method 1"}
+    ],
+    "epikriserMethod2": [
+      {"id": 1, "content": "Translated document content 1 using Method 2"},
+      {"id": 2, "content": "Translated document content 2 using Method 2"}
+    ]
+  }
+  

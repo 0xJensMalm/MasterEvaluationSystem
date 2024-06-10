@@ -38,7 +38,7 @@
                     <input type="radio" name="score" value="5"> 5
                 </label>
             </div>
-            <button onclick="submitLaymanScore()">Submit Score</button>
+            <button id="layman-submit" onclick="submitLaymanScore()">Submit Score</button>
         </div>
 
         <div id="expert-survey" style="display:none;">
@@ -69,13 +69,12 @@
                     <input type="radio" name="expert-score" value="5"> 5
                 </label>
             </div>
-            <button onclick="submitExpertScore()">Submit Score</button>
+            <button id="expert-submit" onclick="submitExpertScore()">Submit Score</button>
         </div>
     </div>
 
+    <script src="js/config.js"></script>
     <script src="js/app.js"></script>
-    <script src="js/layman.js" id="layman-script" style="display:none;"></script>
-    <script src="js/expert.js" id="expert-script" style="display:none;"></script>
 </body>
 
 </html>
