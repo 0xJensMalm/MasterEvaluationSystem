@@ -4,7 +4,7 @@
   let translatedDocuments = [];
   let startTime;
   let shuffledDocuments = [];
-  const config = config.expertConfig(); // Ensure config is accessed correctly
+  const expertConfig = config.expertConfig();
 
   // Mock storage for collected data
   let collectedData = [];
@@ -22,7 +22,7 @@
         ...data.epikriserMethod2,
       ];
 
-      if (config.randomShuffle) {
+      if (expertConfig.randomShuffle) {
         shuffledDocuments = shuffleArray(translatedDocuments);
       } else {
         shuffledDocuments = translatedDocuments;
@@ -88,6 +88,8 @@
     }
     return array;
   }
+
+  window.submitExpertScore = submitExpertScore; // Make the function globally accessible
 
   fetchExpertDocuments();
 })();

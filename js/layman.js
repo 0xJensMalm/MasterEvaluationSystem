@@ -3,7 +3,7 @@
   let documents = [];
   let startTime;
   let shuffledDocuments = [];
-  const config = config.laymanConfig(); // Ensure config is accessed correctly
+  const laymanConfig = config.laymanConfig();
 
   // Mock storage for collected data
   let collectedData = [];
@@ -15,7 +15,7 @@
         throw new Error("Network response was not ok");
       }
       documents = await response.json();
-      if (config.randomShuffle) {
+      if (laymanConfig.randomShuffle) {
         shuffledDocuments = shuffleArray(documents);
       } else {
         shuffledDocuments = documents;
@@ -75,6 +75,8 @@
     }
     return array;
   }
+
+  window.submitLaymanScore = submitLaymanScore; // Make the function globally accessible
 
   fetchLaymanDocuments();
 })();
