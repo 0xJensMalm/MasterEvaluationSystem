@@ -11,26 +11,45 @@
 
   async function fetchExpertDocuments() {
     try {
-      const response = await fetch("data/expert_documents.json");
+      const response = await fetch(expertConfig.documentSource);
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      const data = await response.json();
-      originalDocuments = data.originalEpikriser;
-      translatedDocuments = [
-        ...data.epikriserMethod1,
-        ...data.epikriserMethod2,
-      ];
+      const files = await response.json();
+      const documents = await fetchDocumentContents(files);
+
+      // Split documents into original and translated based on your application's logic
+      originalDocuments = documents.slice(0, expertConfig.numberOfDocuments);
+      translatedDocuments = documents.slice(
+        expertConfig.numberOfDocuments,
+        2 * expertConfig.numberOfDocuments
+      );
 
       if (expertConfig.randomShuffle) {
-        shuffledDocuments = shuffleArray(translatedDocuments);
+        shuffledDocuments = utils.shuffleArray(translatedDocuments);
       } else {
         shuffledDocuments = translatedDocuments;
       }
+
       startSurvey();
     } catch (error) {
+      displayError("Failed to fetch documents. Please try again later.");
       console.error("Failed to fetch documents:", error);
     }
+  }
+
+  async function fetchDocumentContents(files) {
+    const documents = [];
+    for (const file of files) {
+      const response = await fetch(`data/epikriser/${file}`);
+      if (!response.ok) {
+        console.error(`Failed to fetch document: ${file}`);
+        continue;
+      }
+      const content = await response.text();
+      documents.push({ id: file, content });
+    }
+    return documents;
   }
 
   function startSurvey() {
@@ -38,10 +57,17 @@
       const originalDoc = originalDocuments[currentDocumentIndex];
       const translatedDoc = shuffledDocuments[currentDocumentIndex];
 
-      document.getElementById("original-document-content").innerText =
-        originalDoc.content;
-      document.getElementById("translated-document-content").innerText =
-        translatedDoc.content;
+      document.getElementById(
+        "original-document-content"
+      ).innerHTML = `<div class="document-content">${marked.parse(
+        originalDoc.content
+      )}</div>`;
+      document.getElementById(
+        "translated-document-content"
+      ).innerHTML = `<div class="document-content">${marked.parse(
+        translatedDoc.content
+      )}</div>`;
+      config.applyDocumentStyling();
       startTime = Date.now();
     } else {
       alert("Survey completed. Thank you!");
@@ -54,7 +80,7 @@
       'input[name="expert-score"]:checked'
     );
     if (!selectedScore) {
-      alert("Please select a score");
+      displayError("Please select a score");
       return;
     }
 
@@ -81,12 +107,8 @@
     startSurvey();
   }
 
-  function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
+  function displayError(message) {
+    alert(message); // Placeholder for a more sophisticated error display mechanism
   }
 
   window.submitExpertScore = submitExpertScore; // Make the function globally accessible

@@ -1,3 +1,4 @@
+/* General styles */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -55,7 +56,7 @@ button:hover {
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     width: 80%; /* Document should be 80% of the survey container */
-    max-height: 80%; /* Make sure the document has a max height */
+    height: 60vh; /* Consistent height for all documents */
     overflow-y: auto; /* Make the document scrollable */
     margin-left: auto;
     margin-right: auto;
@@ -112,4 +113,35 @@ input[type="radio"] {
         width: 100%;
         margin-bottom: 20px;
     }
+}
+
+/* Markdown Styles */
+.document-content h1 {
+    font-size: 24px; /* Smaller than the default size */
+}
+
+.document-content h2 {
+    font-size: 20px; /* Smaller than the default size */
+}
+
+.document-content p {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Ensure document content scales properly */
+.document-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow-y: auto;
+}
+
+.document-content * {
+    flex-shrink: 0;
+}
+
+.document-content h1, .document-content h2, .document-content p {
+    flex-shrink: 1;
 }

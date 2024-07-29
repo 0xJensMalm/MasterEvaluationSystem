@@ -10,20 +10,36 @@
 
   async function fetchLaymanDocuments() {
     try {
-      const response = await fetch("data/documents.json");
+      const response = await fetch(laymanConfig.documentSource);
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      documents = await response.json();
+      const files = await response.json();
+      documents = await fetchDocumentContents(files);
       if (laymanConfig.randomShuffle) {
-        shuffledDocuments = shuffleArray(documents);
+        shuffledDocuments = utils.shuffleArray(documents);
       } else {
         shuffledDocuments = documents;
       }
       startSurvey();
     } catch (error) {
+      displayError("Failed to fetch documents. Please try again later.");
       console.error("Failed to fetch documents:", error);
     }
+  }
+
+  async function fetchDocumentContents(files) {
+    const documents = [];
+    for (const file of files) {
+      const response = await fetch(`data/epikriser/${file}`);
+      if (!response.ok) {
+        console.error(`Failed to fetch document: ${file}`);
+        continue;
+      }
+      const content = await response.text();
+      documents.push({ id: file, content });
+    }
+    return documents;
   }
 
   function startSurvey() {
@@ -32,7 +48,12 @@
       document.getElementById("document-title").innerText = `Document ${
         currentDocumentIndex + 1
       }`;
-      document.getElementById("document-content").innerText = doc.content;
+      document.getElementById(
+        "document-content"
+      ).innerHTML = `<div class="document-content">${marked.parse(
+        doc.content
+      )}</div>`;
+      config.applyDocumentStyling();
       startTime = Date.now();
     } else {
       alert("Survey completed. Thank you!");
@@ -43,7 +64,7 @@
   function submitLaymanScore() {
     const selectedScore = document.querySelector('input[name="score"]:checked');
     if (!selectedScore) {
-      alert("Please select a score");
+      displayError("Please select a score");
       return;
     }
 
@@ -68,12 +89,8 @@
     startSurvey();
   }
 
-  function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
+  function displayError(message) {
+    alert(message); // Placeholder for a more sophisticated error display mechanism
   }
 
   window.submitLaymanScore = submitLaymanScore; // Make the function globally accessible
