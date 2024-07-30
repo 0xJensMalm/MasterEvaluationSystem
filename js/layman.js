@@ -5,17 +5,62 @@
   let shuffledDocuments = [];
   const laymanConfig = config.laymanConfig();
 
-  // Mock storage for collected data
   let collectedData = [];
 
-  async function fetchLaymanDocuments() {
+  async function fetchDocuments(source) {
     try {
-      const response = await fetch(laymanConfig.documentSource);
+      const response = await fetch(source);
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       const files = await response.json();
-      documents = await fetchDocumentContents(files);
+      return files; // Just return the file list
+    } catch (error) {
+      displayError("Failed to fetch document list. Please try again later.");
+      console.error("Failed to fetch document list:", error);
+    }
+  }
+
+  async function fetchDocumentContents(files, source) {
+    const documents = [];
+    for (const file of files) {
+      const response = await fetch(`${source}${file}`);
+      if (!response.ok) {
+        console.error(`Failed to fetch document: ${file}`);
+        continue;
+      }
+      const content = await response.text();
+      documents.push({ id: file, content });
+    }
+    return documents;
+  }
+
+  async function fetchLaymanDocuments() {
+    try {
+      const originalFiles = await fetchDocuments(
+        laymanConfig.originalSource + "epikriser.json"
+      );
+      const translated1Files = await fetchDocuments(
+        laymanConfig.translated1Source + "epikriser.json"
+      );
+      const translated2Files = await fetchDocuments(
+        laymanConfig.translated2Source + "epikriser.json"
+      );
+
+      const originalDocs = await fetchDocumentContents(
+        originalFiles,
+        laymanConfig.originalSource
+      );
+      const translated1Docs = await fetchDocumentContents(
+        translated1Files,
+        laymanConfig.translated1Source
+      );
+      const translated2Docs = await fetchDocumentContents(
+        translated2Files,
+        laymanConfig.translated2Source
+      );
+
+      documents = [...originalDocs, ...translated1Docs, ...translated2Docs];
       if (laymanConfig.randomShuffle) {
         shuffledDocuments = utils.shuffleArray(documents);
       } else {
@@ -28,23 +73,10 @@
     }
   }
 
-  async function fetchDocumentContents(files) {
-    const documents = [];
-    for (const file of files) {
-      const response = await fetch(`data/epikriser/${file}`);
-      if (!response.ok) {
-        console.error(`Failed to fetch document: ${file}`);
-        continue;
-      }
-      const content = await response.text();
-      documents.push({ id: file, content });
-    }
-    return documents;
-  }
-
   function startSurvey() {
     if (currentDocumentIndex < shuffledDocuments.length) {
       const doc = shuffledDocuments[currentDocumentIndex];
+      console.log(`Presenting document: ${doc.id}`);
       document.getElementById("document-title").innerText = `Document ${
         currentDocumentIndex + 1
       }`;
@@ -72,7 +104,6 @@
     const documentID = shuffledDocuments[currentDocumentIndex].id;
     const timeSpent = Date.now() - startTime;
 
-    // Store data
     const dataEntry = {
       userID,
       documentID,
@@ -81,19 +112,17 @@
     };
     collectedData.push(dataEntry);
 
-    // Log data to console
     console.log(dataEntry);
 
-    // Move to next document
     currentDocumentIndex++;
     startSurvey();
   }
 
   function displayError(message) {
-    alert(message); // Placeholder for a more sophisticated error display mechanism
+    alert(message);
   }
 
-  window.submitLaymanScore = submitLaymanScore; // Make the function globally accessible
+  window.submitLaymanScore = submitLaymanScore;
 
   fetchLaymanDocuments();
 })();

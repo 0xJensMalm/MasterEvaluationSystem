@@ -1,17 +1,21 @@
 const config = (function () {
   function laymanConfig() {
     return {
-      randomShuffle: true, // Set to true or false based on your requirement
-      documentSource: "data/epikriser/epikriser.json", // Source URL for documents
+      randomShuffle: true,
+      originalSource: "data/originals/",
+      translated1Source: "data/translated1/",
+      translated2Source: "data/translated2/",
+      documentCount: 10, // Adjust as needed
     };
   }
 
   function expertConfig() {
     return {
-      randomShuffle: true, // Whether to shuffle documents randomly
-      numberOfDocuments: 10, // Number of documents to fetch
-      documentSource: "data/epikriser/epikriser.json", // Source URL for documents
-      includeMethods: ["epikriserMethod1", "epikriserMethod2"], // Methods to include in translated documents (adjust as needed)
+      randomShuffle: true,
+      originalSource: "data/originals/",
+      translated1Source: "data/translated1/",
+      translated2Source: "data/translated2/",
+      documentCount: 10, // Adjust as needed
     };
   }
 

@@ -3,45 +3,30 @@
   let originalDocuments = [];
   let translatedDocuments = [];
   let startTime;
-  let shuffledDocuments = [];
+  let shuffledOriginalDocuments = [];
+  let shuffledTranslatedDocuments = [];
   const expertConfig = config.expertConfig();
 
-  // Mock storage for collected data
   let collectedData = [];
 
-  async function fetchExpertDocuments() {
+  async function fetchDocuments(source) {
     try {
-      const response = await fetch(expertConfig.documentSource);
+      const response = await fetch(source);
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       const files = await response.json();
-      const documents = await fetchDocumentContents(files);
-
-      // Split documents into original and translated based on your application's logic
-      originalDocuments = documents.slice(0, expertConfig.numberOfDocuments);
-      translatedDocuments = documents.slice(
-        expertConfig.numberOfDocuments,
-        2 * expertConfig.numberOfDocuments
-      );
-
-      if (expertConfig.randomShuffle) {
-        shuffledDocuments = utils.shuffleArray(translatedDocuments);
-      } else {
-        shuffledDocuments = translatedDocuments;
-      }
-
-      startSurvey();
+      return files; // Just return the file list
     } catch (error) {
-      displayError("Failed to fetch documents. Please try again later.");
-      console.error("Failed to fetch documents:", error);
+      displayError("Failed to fetch document list. Please try again later.");
+      console.error("Failed to fetch document list:", error);
     }
   }
 
-  async function fetchDocumentContents(files) {
+  async function fetchDocumentContents(files, source) {
     const documents = [];
     for (const file of files) {
-      const response = await fetch(`data/epikriser/${file}`);
+      const response = await fetch(`${source}${file}`);
       if (!response.ok) {
         console.error(`Failed to fetch document: ${file}`);
         continue;
@@ -52,10 +37,54 @@
     return documents;
   }
 
+  async function fetchExpertDocuments() {
+    try {
+      const originalFiles = await fetchDocuments(
+        expertConfig.originalSource + "epikriser.json"
+      );
+      const translated1Files = await fetchDocuments(
+        expertConfig.translated1Source + "epikriser.json"
+      );
+      const translated2Files = await fetchDocuments(
+        expertConfig.translated2Source + "epikriser.json"
+      );
+
+      const originalDocs = await fetchDocumentContents(
+        originalFiles,
+        expertConfig.originalSource
+      );
+      const translated1Docs = await fetchDocumentContents(
+        translated1Files,
+        expertConfig.translated1Source
+      );
+      const translated2Docs = await fetchDocumentContents(
+        translated2Files,
+        expertConfig.translated2Source
+      );
+
+      originalDocuments = originalDocs;
+      translatedDocuments = [...translated1Docs, ...translated2Docs];
+      if (expertConfig.randomShuffle) {
+        shuffledOriginalDocuments = utils.shuffleArray(originalDocuments);
+        shuffledTranslatedDocuments = utils.shuffleArray(translatedDocuments);
+      } else {
+        shuffledOriginalDocuments = originalDocuments;
+        shuffledTranslatedDocuments = translatedDocuments;
+      }
+      startSurvey();
+    } catch (error) {
+      displayError("Failed to fetch documents. Please try again later.");
+      console.error("Failed to fetch documents:", error);
+    }
+  }
+
   function startSurvey() {
-    if (currentDocumentIndex < originalDocuments.length) {
-      const originalDoc = originalDocuments[currentDocumentIndex];
-      const translatedDoc = shuffledDocuments[currentDocumentIndex];
+    if (currentDocumentIndex < shuffledOriginalDocuments.length) {
+      const originalDoc = shuffledOriginalDocuments[currentDocumentIndex];
+      const translatedDoc = shuffledTranslatedDocuments[currentDocumentIndex];
+
+      console.log(`Presenting original document: ${originalDoc.id}`);
+      console.log(`Presenting translated document: ${translatedDoc.id}`);
 
       document.getElementById(
         "original-document-content"
@@ -85,11 +114,12 @@
     }
 
     const score = selectedScore.value;
-    const originalDocumentID = originalDocuments[currentDocumentIndex].id;
-    const translatedDocumentID = shuffledDocuments[currentDocumentIndex].id;
+    const originalDocumentID =
+      shuffledOriginalDocuments[currentDocumentIndex].id;
+    const translatedDocumentID =
+      shuffledTranslatedDocuments[currentDocumentIndex].id;
     const timeSpent = Date.now() - startTime;
 
-    // Store data
     const dataEntry = {
       userID,
       originalDocumentID,
@@ -99,19 +129,17 @@
     };
     collectedData.push(dataEntry);
 
-    // Log data to console
     console.log(dataEntry);
 
-    // Move to next document
     currentDocumentIndex++;
     startSurvey();
   }
 
   function displayError(message) {
-    alert(message); // Placeholder for a more sophisticated error display mechanism
+    alert(message);
   }
 
-  window.submitExpertScore = submitExpertScore; // Make the function globally accessible
+  window.submitExpertScore = submitExpertScore;
 
   fetchExpertDocuments();
 })();
